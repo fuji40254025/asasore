@@ -395,6 +395,8 @@
 </div>
 
 <audio id="gunshot" src="gunshot.mp3" preload="auto"></audio>
+<audio id="countdown" src="countdown.m4a" preload="auto"></audio>
+<audio id="roulette-bgm" src="roulette-bgm.mp3" preload="auto" loop></audio>
 
 <script>
 "use strict";
@@ -527,6 +529,8 @@ function renderTimer() {
 function stopTimer(resetRemain) {
   if (timerInterval) clearInterval(timerInterval);
   timerInterval = null;
+  countdownSfx.pause();
+  countdownSfx.currentTime = 0;
   if (resetRemain) timerRemain = timerSeconds;
   $("timer-btn").textContent = "スタート";
   $("timer-btn").classList.remove("running");
@@ -550,6 +554,9 @@ $("timer-btn").addEventListener("click", () => {
   timerInterval = setInterval(() => {
     timerRemain--;
     renderTimer();
+    if (timerRemain === 5) {        // 残り5秒：数字が赤くなる瞬間にカウントダウン音
+      playCountdown();
+    }
     if (timerRemain <= 0) {
       clearInterval(timerInterval);
       timerInterval = null;
@@ -585,10 +592,12 @@ $("roulette-banner").addEventListener("click", () => {
   unlockAudio();
   setupRoulette();
   showScreen("roulette-screen");
+  startRouletteBgm();          // ルーレット画面のBGM開始
 });
 
 $("back-btn").addEventListener("click", () => {
   if (spinning) return;
+  stopRouletteBgm();           // 離脱でBGM停止
   showScreen("game-screen");
 });
 
@@ -727,6 +736,7 @@ function finishSpin() {
 
 $("replay-btn").addEventListener("click", () => {
   $("result-overlay").classList.remove("show");
+  stopRouletteBgm();           // ルーレット離脱でBGM停止
   // メイン画面を初期状態に戻す
   $("odai-text").style.display = "none";
   $("odai-placeholder").style.display = "block";
@@ -737,27 +747,43 @@ $("replay-btn").addEventListener("click", () => {
 /* ==================== 効果音 ==================== */
 
 const gunshot = $("gunshot");
+const countdownSfx = $("countdown");
+const rouletteBgm = $("roulette-bgm");
 let audioUnlocked = false;
 
-// モバイルの自動再生制限対策：最初のタップで無音再生して解錠
+// モバイルの自動再生制限対策：最初のタップで無音再生して各音源を解錠
 function unlockAudio() {
   if (audioUnlocked) return;
   audioUnlocked = true;
-  const v = gunshot.volume;
-  gunshot.volume = 0;
-  gunshot.play().then(() => {
-    gunshot.pause();
-    gunshot.currentTime = 0;
-    gunshot.volume = v;
-  }).catch(() => {
-    gunshot.volume = v;
-    audioUnlocked = false;
+  [gunshot, countdownSfx].forEach((el) => {
+    const v = el.volume;
+    el.volume = 0;
+    el.play().then(() => {
+      el.pause();
+      el.currentTime = 0;
+      el.volume = v;
+    }).catch(() => { el.volume = v; });
   });
 }
 
 function playGunshot() {
   gunshot.currentTime = 0;
   gunshot.play().catch(() => {});
+}
+
+function playCountdown() {
+  countdownSfx.currentTime = 0;
+  countdownSfx.play().catch(() => {});
+}
+
+function startRouletteBgm() {
+  rouletteBgm.currentTime = 0;
+  rouletteBgm.play().catch(() => {});
+}
+
+function stopRouletteBgm() {
+  rouletteBgm.pause();
+  rouletteBgm.currentTime = 0;
 }
 
 renderTimer();
