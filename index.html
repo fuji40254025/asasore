@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>朝までそれ正解 〜地元ルール〜</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    background: #0d0d0f;
+    color: #f5f0e6;
+    font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+    overflow: hidden;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(120, 0, 0, 0.25), transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(60, 0, 0, 0.35), transparent 60%),
+      #0d0d0f;
+  }
+
+  .screen {
+    display: none;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    position: relative;
+  }
+  .screen.active { display: flex; }
+
+  /* ============ メイン画面 ============ */
+
+  #odai-area {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 30vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12px;
+  }
+
+  #odai-placeholder {
+    color: #6b6258;
+    font-size: 1.05rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+  }
+
+  #odai-text {
+    display: none;
+    animation: odaiPop 0.35s ease-out;
+  }
+  @keyframes odaiPop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .odai-line1 {
+    font-size: clamp(2.2rem, 11vw, 4.2rem);
+    font-weight: 900;
+    color: #ffd86b;
+    text-shadow: 0 0 18px rgba(255, 180, 60, 0.45), 0 2px 4px #000;
+    line-height: 1.2;
+  }
+  .odai-line1 .kana {
+    font-size: clamp(3rem, 15vw, 5.6rem);
+    color: #ff4040;
+    text-shadow: 0 0 22px rgba(255, 60, 60, 0.6), 0 2px 4px #000;
+    padding: 0 0.08em;
+  }
+  .odai-line2 {
+    margin-top: 10px;
+    font-size: clamp(1.5rem, 7vw, 2.8rem);
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.25), 0 2px 4px #000;
+    line-height: 1.35;
+  }
+
+  #main-btn {
+    flex: 0 0 auto;
+    width: min(52vw, 230px);
+    height: min(52vw, 230px);
+    border-radius: 50%;
+    border: 4px solid #8a1c1c;
+    background: radial-gradient(circle at 35% 30%, #c0392b, #7a1010 60%, #4a0808);
+    color: #ffe9c9;
+    font-size: clamp(1.5rem, 7vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    box-shadow: 0 0 35px rgba(200, 30, 30, 0.45), inset 0 -8px 18px rgba(0,0,0,0.5);
+    text-shadow: 0 2px 4px #000;
+    transition: transform 0.08s;
+    touch-action: manipulation;
+  }
+  #main-btn:active { transform: scale(0.94); }
+
+  /* ============ タイマー ============ */
+
+  #timer-area {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 4px;
+  }
+
+  #timer-display {
+    font-size: clamp(3rem, 14vw, 4.5rem);
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: #e8e2d5;
+    text-shadow: 0 0 12px rgba(255,255,255,0.2), 0 2px 4px #000;
+    line-height: 1;
+  }
+  #timer-display.warning { color: #ff5050; animation: timerBlink 0.5s infinite; }
+  @keyframes timerBlink { 50% { opacity: 0.35; } }
+
+  #timer-finished {
+    display: none;
+    font-size: clamp(1.4rem, 7vw, 2.2rem);
+    font-weight: 900;
+    color: #ff3030;
+    text-shadow: 0 0 16px rgba(255,40,40,0.7);
+    animation: timerBlink 0.6s infinite;
+  }
+
+  .timer-controls { display: flex; gap: 12px; align-items: center; }
+
+  .timer-adjust {
+    width: 56px; height: 44px;
+    background: #1d1d22;
+    border: 2px solid #3a3a42;
+    border-radius: 10px;
+    color: #cfc8ba;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .timer-adjust:active { background: #2c2c33; }
+
+  #timer-btn {
+    min-width: 150px;
+    padding: 12px 26px;
+    border-radius: 12px;
+    border: 2px solid #1c5a8a;
+    background: linear-gradient(180deg, #2980b9, #14496e);
+    color: #eaf6ff;
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    box-shadow: 0 0 18px rgba(50, 140, 210, 0.35);
+    text-shadow: 0 1px 3px #000;
+    touch-action: manipulation;
+  }
+  #timer-btn:active { transform: scale(0.96); }
+  #timer-btn.running {
+    border-color: #8a6a1c;
+    background: linear-gradient(180deg, #b98529, #6e5214);
+    box-shadow: 0 0 18px rgba(210, 160, 50, 0.35);
+  }
+
+  /* ============ ルーレットへの禍々しい看板 ============ */
+
+  #roulette-banner {
+    position: absolute;
+    top: 14px;
+    right: 12px;
+    padding: 10px 14px;
+    background: linear-gradient(160deg, #1a0000, #3d0000);
+    border: 2px solid #7a0d0d;
+    border-radius: 8px;
+    color: #ff6b6b;
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.4;
+    box-shadow: 0 0 14px rgba(255, 0, 0, 0.45);
+    animation: bannerPulse 2.2s infinite;
+    transform: rotate(2deg);
+    text-shadow: 0 0 8px rgba(255, 60, 60, 0.8);
+    user-select: none;
+    touch-action: manipulation;
+    z-index: 5;
+  }
+  @keyframes bannerPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.35); }
+    50% { box-shadow: 0 0 26px rgba(255, 0, 0, 0.8); }
+  }
+  #roulette-banner:active { transform: rotate(2deg) scale(0.95); }
+
+  /* ============ ルーレット画面 ============ */
+
+  #roulette-screen { justify-content: flex-start; gap: 8px; }
+
+  #back-btn {
+    position: absolute;
+    top: 14px; left: 12px;
+    padding: 8px 14px;
+    background: #1d1d22;
+    border: 2px solid #3a3a42;
+    border-radius: 8px;
+    color: #cfc8ba;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 5;
+  }
+
+  #wheel-title {
+    margin-top: 52px;
+    font-size: clamp(1.2rem, 6vw, 1.8rem);
+    font-weight: 900;
+    color: #ff9c9c;
+    text-shadow: 0 0 12px rgba(255, 60, 60, 0.5);
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+  #wheel-subtitle {
+    font-size: 0.85rem;
+    color: #8a8276;
+    letter-spacing: 0.15em;
+  }
+
+  #wheel-wrap {
+    position: relative;
+    width: min(86vw, 380px);
+    height: min(86vw, 380px);
+    margin-top: 6px;
+  }
+  #wheel-canvas { width: 100%; height: 100%; display: block; }
+
+  #wheel-pointer {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-top: 30px solid #ffd86b;
+    filter: drop-shadow(0 0 6px rgba(255, 200, 80, 0.8));
+    z-index: 3;
+  }
+
+  #spin-btn {
+    margin-top: 10px;
+    padding: 16px 52px;
+    border-radius: 14px;
+    border: 3px solid #8a1c1c;
+    background: radial-gradient(circle at 35% 30%, #c0392b, #7a1010 70%);
+    color: #ffe9c9;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 0.25em;
+    cursor: pointer;
+    box-shadow: 0 0 24px rgba(200, 30, 30, 0.45);
+    text-shadow: 0 2px 4px #000;
+    touch-action: manipulation;
+  }
+  #spin-btn:active { transform: scale(0.95); }
+  #spin-btn:disabled { opacity: 0.35; pointer-events: none; }
+
+  /* ============ 結果オーバーレイ ============ */
+
+  #result-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 0, 0, 0.82);
+    z-index: 50;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5vh;
+  }
+  #result-overlay.show { display: flex; }
+
+  #result-text {
+    font-size: clamp(5rem, 30vw, 13rem);
+    font-weight: 900;
+    color: #ff2222;
+    text-shadow:
+      0 0 30px rgba(255, 0, 0, 0.9),
+      0 0 80px rgba(255, 0, 0, 0.5),
+      0 4px 8px #000;
+    animation: resultSlam 0.3s ease-out;
+    white-space: nowrap;
+    line-height: 1;
+  }
+  @keyframes resultSlam {
+    0% { transform: scale(3); opacity: 0; }
+    70% { transform: scale(0.92); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  #result-label {
+    font-size: clamp(1.1rem, 5vw, 1.6rem);
+    font-weight: 900;
+    color: #ffd86b;
+    letter-spacing: 0.3em;
+    text-shadow: 0 0 10px rgba(255, 200, 80, 0.6);
+  }
+
+  #replay-btn {
+    display: none;
+    padding: 16px 44px;
+    border-radius: 14px;
+    border: 3px solid #1c5a8a;
+    background: linear-gradient(180deg, #2980b9, #14496e);
+    color: #eaf6ff;
+    font-size: 1.3rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    box-shadow: 0 0 22px rgba(50, 140, 210, 0.45);
+    text-shadow: 0 1px 3px #000;
+    touch-action: manipulation;
+    animation: odaiPop 0.3s ease-out;
+  }
+  #replay-btn:active { transform: scale(0.95); }
+
+  .title-mini {
+    position: absolute;
+    top: 16px; left: 14px;
+    font-size: 0.8rem;
+    color: #5c554b;
+    font-weight: bold;
+    letter-spacing: 0.15em;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ メイン画面 ============ -->
+<div id="game-screen" class="screen active">
+  <div class="title-mini">朝までそれ正解 〜地元ルール〜</div>
+
+  <div id="roulette-banner">☠ 血の<br>ルーレット ☠</div>
+
+  <div id="odai-area">
+    <div id="odai-placeholder">↓ ボタンを押してお題を召喚 ↓</div>
+    <div id="odai-text">
+      <div class="odai-line1">「<span class="kana" id="odai-kana"></span>」から始まる</div>
+      <div class="odai-line2"><span id="odai-word"></span>と言えば？</div>
+    </div>
+  </div>
+
+  <button id="main-btn">お題！</button>
+
+  <div id="timer-area">
+    <div id="timer-display">30</div>
+    <div id="timer-finished">🔫 発表せよ！！</div>
+    <div class="timer-controls">
+      <button class="timer-adjust" id="timer-minus">−10</button>
+      <button id="timer-btn">スタート</button>
+      <button class="timer-adjust" id="timer-plus">＋10</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ルーレット画面 ============ -->
+<div id="roulette-screen" class="screen">
+  <button id="back-btn">← 戻る</button>
+  <div id="wheel-title"></div>
+  <div id="wheel-subtitle">― 敗者に杯を ―</div>
+  <div id="wheel-wrap">
+    <div id="wheel-pointer"></div>
+    <canvas id="wheel-canvas" width="760" height="760"></canvas>
+  </div>
+  <button id="spin-btn">回 す</button>
+</div>
+
+<!-- ============ 結果オーバーレイ ============ -->
+<div id="result-overlay">
+  <div id="result-label">― 敗者への裁き ―</div>
+  <div id="result-text"></div>
+  <button id="replay-btn">もう一度遊ぶ</button>
+</div>
+
+<audio id="gunshot" src="gunshot.mp3" preload="auto"></audio>
+
+<script>
+"use strict";
+
+/* ==================== お題データ ==================== */
+
+// 語頭に使えるひらがな（ん・を・ぢ・づ は除外）
+const KANA_POOL = [
+  "あ","い","う","え","お",
+  "か","き","く","け","こ",
+  "さ","し","す","せ","そ",
+  "た","ち","つ","て","と",
+  "な","に","ぬ","ね","の",
+  "は","ひ","ふ","へ","ほ",
+  "ま","み","む","め","も",
+  "や","ゆ","よ",
+  "ら","り","る","れ","ろ",
+  "わ",
+  "が","ぎ","ぐ","げ","ご",
+  "ざ","じ","ず","ぜ","ぞ",
+  "だ","で","ど",
+  "ば","び","ぶ","べ","ぼ",
+  "ぱ","ぴ","ぷ","ぺ","ぽ"
+];
+
+// お題ワード（「◯から始まる、△△と言えば？」の△△部分）240個
+const ODAI_WORDS = [
+  "大きいもの","小さいもの","怖いもの","柔らかいもの","硬いもの",
+  "冷たいもの","熱いもの","速いもの","遅いもの","高いもの",
+  "安いもの","重いもの","軽いもの","丸いもの","長いもの",
+  "短いもの","美しいもの","汚いもの","臭いもの","いい匂いのもの",
+  "うるさいもの","静かなもの","強いもの","弱いもの","甘いもの",
+  "辛いもの","苦いもの","酸っぱいもの","美味しいもの","まずそうな食べ物",
+  "赤いもの","青いもの","白いもの","黒いもの","黄色いもの",
+  "透明なもの","光るもの","飛ぶもの","泳ぐもの","走るもの",
+  "回るもの","伸びるもの","縮むもの","濡れているもの","乾いているもの",
+  "ベタベタするもの","ツルツルしたもの","ザラザラしたもの","フワフワしたもの","チクチクするもの",
+  "動物","海の生き物","鳥","虫","魚",
+  "花","木","野菜","果物","お菓子",
+  "飲み物","お酒のおつまみ","ラーメンの具","おでんの具","鍋の具材",
+  "寿司ネタ","パンの種類","アイスの味","ジュースの味","カレーに入れたいもの",
+  "コンビニにあるもの","スーパーにあるもの","100円ショップにあるもの","ドラッグストアにあるもの","家にあるもの",
+  "キッチンにあるもの","冷蔵庫に入っているもの","お風呂場にあるもの","トイレにあるもの","玄関にあるもの",
+  "学校にあるもの","教室にあるもの","職員室にありそうなもの","オフィスにあるもの","病院にあるもの",
+  "公園にあるもの","海にあるもの","山にあるもの","空にあるもの","宇宙にあるもの",
+  "神社にあるもの","お祭りの屋台で売っているもの","遊園地にあるもの","温泉旅館にありそうなもの","キャンプに持っていくもの",
+  "旅行に持っていくもの","災害時に必要なもの","無人島に持っていきたいもの","サラリーマンがいつも持っているもの","女子高生のカバンに入っていそうなもの",
+  "おばあちゃんの家にありそうなもの","お金持ちの家にありそうなもの","男子の部屋にありそうなもの","ポケットに入るもの","財布に入っているもの",
+  "冷凍庫に入っているもの","引き出しの中にあるもの","押し入れに眠っていそうなもの","カバンに入れておきたいもの","机の上にあるもの",
+  "職業","モテそうな職業","給料が高そうな職業","朝早い職業","スポーツ",
+  "オリンピック競技","部活動","習い事","楽器","国の名前",
+  "都道府県","観光地","温泉地","駅にあるもの","有名人",
+  "芸人","歌手","アニメのキャラクター","ゲームに出てきそうなもの","昔話に出てくるもの",
+  "ことわざに出てきそうな言葉","四字熟語っぽい言葉","戦国武将っぽい名前","歴史上の人物","偉人",
+  "漫画のタイトルっぽい言葉","映画のタイトルっぽい言葉","ドラマにありがちなセリフ","学園ドラマにありがちなこと","ヒーローの必殺技っぽい言葉",
+  "魔法の呪文っぽい言葉","悪役が言いそうなセリフ","告白の言葉","別れの言葉","言われたら嬉しい言葉",
+  "言われたら傷つく言葉","母親がよく言うセリフ","父親がよく言うセリフ","先生に怒られる理由","遅刻の言い訳",
+  "デートで行きたい場所","初デートで行ってはいけない場所","プレゼントでもらって嬉しいもの","プレゼントでもらって困るもの","結婚式で見かけるもの",
+  "お葬式で見かけるもの","夏を感じるもの","冬を感じるもの","春を感じるもの","秋を感じるもの",
+  "正月にあるもの","クリスマスにあるもの","ハロウィンを連想させるもの","バレンタインを連想させるもの","子供の頃に流行ったもの",
+  "青春を感じるもの","大人になったと感じる瞬間","年を取ったと感じる瞬間","幸せを感じる瞬間","イラッとする瞬間",
+  "ヒヤッとする瞬間","テンションが上がる瞬間","眠くなる瞬間","お腹が空く瞬間","泣きそうになる瞬間",
+  "鳥肌が立つもの","ストレス解消法","暇つぶしの方法","モテるための方法","痩せる方法",
+  "お金を貯める方法","友達に自慢できること","ちょっとした贅沢","人生で一度はやってみたいこと","死ぬまでにやりたいこと",
+  "生まれ変わったらなりたいもの","宝くじが当たったら買いたいもの","透明人間になったらやりたいこと","魔法が使えたらやりたいこと","億万長者がやってそうなこと",
+  "忍者が持っていそうなもの","海賊が持っていそうなもの","探偵が持っていそうなもの","泥棒が持っていそうなもの","魔女が持っていそうなもの",
+  "サンタクロースが持っていそうなもの","浦島太郎が持っていそうなもの","桃太郎に出てきそうなもの","地獄にありそうなもの","天国にありそうなもの",
+  "夢に出てきたら怖いもの","枕元に置きたいもの","ベッドの上にあるもの","寝る前にやること","朝起きて最初にやること",
+  "お風呂でやること","トイレで考えること","電車の中でやること","信号待ちでやること","飲み会でありがちなこと",
+  "二日酔いの朝にありがちなこと","酔っ払いがやりがちなこと","カラオケで盛り上がる曲っぽいタイトル","居酒屋のメニュー","バーにありそうなもの",
+  "大人の夜の飲み物","ドキッとする異性の仕草","思わず二度見してしまうもの","デートの夜にありそうな展開","大人のお店にありそうなもの",
+  "お風呂で見られたら恥ずかしいもの","親には見られたくないもの","スマホの中に隠してあるもの","異性に言われたらドキッとする一言","キスしたくなる瞬間",
+  "色っぽいと感じる体のパーツ","ムラムラする瞬間","合コンでありがちなこと","浮気がバレる瞬間","イケメンしか許されないこと",
+  "美人がやると様になること","おじさんっぽいもの","おばさんっぽいもの","ギャルが言いそうな言葉","中二病っぽい言葉",
+  "横文字でかっこつけた言葉","社長が言いそうな言葉","占い師が言いそうな言葉","詐欺師が言いそうなセリフ","絶対に押してはいけないボタンっぽいもの",
+  "触ったら怒られるもの","学校に持ってきてはいけないもの","飛行機に持ち込めないもの","深夜に食べたくなるもの","元気が出る食べ物"
+];
+
+/* ==================== ルーレット定義 ====================
+   杯数 0〜3。0と3は全体的に割合低め。
+   全てのルーレットに0〜3が揃っている必要はない。 */
+const WHEELS = [
+  { name: "臆病者の輪",     values: [0, 1, 1, 1, 0, 1, 1, 1] },
+  { name: "ぬるま湯",       values: [1, 1, 1, 1, 1, 1, 1, 2] },
+  { name: "定番の輪",       values: [1, 2, 1, 2, 1, 2, 1, 2] },
+  { name: "悪魔の微笑み",   values: [1, 2, 1, 2, 1, 2, 1, 3] },
+  { name: "天国と地獄",     values: [0, 3, 0, 3, 0, 3] },
+  { name: "平等の掟",       values: [2, 2, 2, 2, 2, 2] },
+  { name: "鬼の宴",         values: [2, 3, 2, 2, 2, 3, 2, 2] },
+  { name: "ゼロか毒杯か",   values: [0, 2, 2, 2, 0, 2, 2, 2] },
+  { name: "酔いどれ輪舞曲", values: [1, 1, 2, 1, 3, 1, 2, 1] },
+  { name: "死神の戯れ",     values: [3, 1, 1, 2, 1, 1, 2, 1] }
+];
+
+// 杯数ごとのセグメント色（0=灰 / 1=暗赤 / 2=赤 / 3=血赤）
+const VALUE_COLORS = { 0: "#3a3f46", 1: "#6e1414", 2: "#a32424", 3: "#e3170d" };
+const VALUE_COLORS_ALT = { 0: "#2c3036", 1: "#591010", 2: "#8a1d1d", 3: "#c4130a" };
+
+/* ==================== ユーティリティ ==================== */
+
+const $ = (id) => document.getElementById(id);
+const randPick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+/* ==================== お題生成 ==================== */
+
+$("main-btn").addEventListener("click", () => {
+  unlockAudio();
+  $("odai-kana").textContent = randPick(KANA_POOL);
+  $("odai-word").textContent = randPick(ODAI_WORDS);
+  $("odai-placeholder").style.display = "none";
+  const odaiText = $("odai-text");
+  odaiText.style.display = "none";
+  // アニメーションを再発火させるためリフロー
+  void odaiText.offsetWidth;
+  odaiText.style.display = "block";
+});
+
+/* ==================== タイマー ==================== */
+
+let timerSeconds = 30;   // 設定秒数
+let timerRemain = 30;    // 残り秒数
+let timerInterval = null;
+
+function renderTimer() {
+  const d = $("timer-display");
+  d.textContent = timerRemain;
+  d.classList.toggle("warning", timerInterval !== null && timerRemain <= 5 && timerRemain > 0);
+}
+
+function stopTimer(resetRemain) {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+  if (resetRemain) timerRemain = timerSeconds;
+  $("timer-btn").textContent = "スタート";
+  $("timer-btn").classList.remove("running");
+  $("timer-display").style.display = "block";
+  $("timer-finished").style.display = "none";
+  renderTimer();
+}
+
+$("timer-btn").addEventListener("click", () => {
+  unlockAudio();
+  if (timerInterval) {            // 動作中 → リセット
+    stopTimer(true);
+    return;
+  }
+  timerRemain = timerSeconds;     // 停止中 → スタート
+  $("timer-btn").textContent = "リセット";
+  $("timer-btn").classList.add("running");
+  $("timer-finished").style.display = "none";
+  $("timer-display").style.display = "block";
+  renderTimer();
+  timerInterval = setInterval(() => {
+    timerRemain--;
+    renderTimer();
+    if (timerRemain <= 0) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      $("timer-display").style.display = "none";
+      $("timer-finished").style.display = "block";
+      $("timer-btn").textContent = "スタート";
+      $("timer-btn").classList.remove("running");
+    }
+  }, 1000);
+});
+
+$("timer-minus").addEventListener("click", () => {
+  if (timerInterval) return;
+  timerSeconds = Math.max(10, timerSeconds - 10);
+  timerRemain = timerSeconds;
+  renderTimer();
+});
+$("timer-plus").addEventListener("click", () => {
+  if (timerInterval) return;
+  timerSeconds = Math.min(180, timerSeconds + 10);
+  timerRemain = timerSeconds;
+  renderTimer();
+});
+
+/* ==================== 画面遷移 ==================== */
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+}
+
+$("roulette-banner").addEventListener("click", () => {
+  unlockAudio();
+  setupRoulette();
+  showScreen("roulette-screen");
+});
+
+$("back-btn").addEventListener("click", () => {
+  if (spinning) return;
+  showScreen("game-screen");
+});
+
+/* ==================== ルーレット ==================== */
+
+const canvas = $("wheel-canvas");
+const ctx = canvas.getContext("2d");
+const SIZE = canvas.width;       // 760
+const CENTER = SIZE / 2;
+const RADIUS = SIZE / 2 - 14;
+
+let currentWheel = null;
+let wheelAngle = 0;              // 現在の回転角（rad）
+let spinning = false;
+
+function setupRoulette() {
+  currentWheel = randPick(WHEELS);
+  wheelAngle = Math.random() * Math.PI * 2;
+  $("wheel-title").textContent = `第${WHEELS.indexOf(currentWheel) + 1}輪盤『${currentWheel.name}』`;
+  $("spin-btn").disabled = false;
+  drawWheel();
+}
+
+function drawWheel() {
+  const values = currentWheel.values;
+  const n = values.length;
+  const arc = (Math.PI * 2) / n;
+
+  ctx.clearRect(0, 0, SIZE, SIZE);
+  ctx.save();
+  ctx.translate(CENTER, CENTER);
+  ctx.rotate(wheelAngle);
+
+  for (let i = 0; i < n; i++) {
+    const start = i * arc;
+    const colorMap = (i % 2 === 0) ? VALUE_COLORS : VALUE_COLORS_ALT;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, RADIUS, start, start + arc);
+    ctx.closePath();
+    ctx.fillStyle = colorMap[values[i]];
+    ctx.fill();
+    ctx.strokeStyle = "#0d0d0f";
+    ctx.lineWidth = 5;
+    ctx.stroke();
+
+    // ラベル「×N」
+    ctx.save();
+    ctx.rotate(start + arc / 2);
+    ctx.translate(RADIUS * 0.65, 0);
+    ctx.rotate(Math.PI / 2);
+    ctx.fillStyle = values[i] === 0 ? "#cfd6dd" : "#ffd86b";
+    ctx.font = "900 84px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0,0,0,0.8)";
+    ctx.shadowBlur = 8;
+    ctx.fillText("×" + values[i], 0, 0);
+    ctx.restore();
+  }
+
+  // 外周リング
+  ctx.beginPath();
+  ctx.arc(0, 0, RADIUS + 4, 0, Math.PI * 2);
+  ctx.strokeStyle = "#8a6a1c";
+  ctx.lineWidth = 8;
+  ctx.stroke();
+
+  // 中心の髑髏
+  ctx.beginPath();
+  ctx.arc(0, 0, 56, 0, Math.PI * 2);
+  ctx.fillStyle = "#16161a";
+  ctx.fill();
+  ctx.strokeStyle = "#8a6a1c";
+  ctx.lineWidth = 5;
+  ctx.stroke();
+  ctx.rotate(-wheelAngle);   // 髑髏は回転させない
+  ctx.font = "52px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.shadowBlur = 0;
+  ctx.fillText("☠️", 0, 4);
+
+  ctx.restore();
+}
+
+$("spin-btn").addEventListener("click", () => {
+  if (spinning) return;
+  unlockAudio();
+  spinning = true;
+  $("spin-btn").disabled = true;
+  $("back-btn").style.opacity = "0.3";
+
+  const startAngle = wheelAngle;
+  const extraTurns = 5 + Math.random() * 3;                // 5〜8回転
+  const targetAngle = startAngle + extraTurns * Math.PI * 2 + Math.random() * Math.PI * 2;
+  const duration = 4800 + Math.random() * 700;             // 約5秒
+  const startTime = performance.now();
+
+  function frame(now) {
+    const t = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);                  // ease-out cubic
+    wheelAngle = startAngle + (targetAngle - startAngle) * eased;
+    drawWheel();
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      finishSpin();
+    }
+  }
+  requestAnimationFrame(frame);
+});
+
+function finishSpin() {
+  spinning = false;
+  $("back-btn").style.opacity = "1";
+
+  // ポインタは真上（-90°）。どのセグメントか判定
+  const values = currentWheel.values;
+  const n = values.length;
+  const arc = (Math.PI * 2) / n;
+  const pointerAngle = -Math.PI / 2;
+  // セグメントiは wheelAngle + i*arc 〜 +arc の範囲にある
+  let rel = (pointerAngle - wheelAngle) % (Math.PI * 2);
+  if (rel < 0) rel += Math.PI * 2;
+  const index = Math.floor(rel / arc);
+  const result = values[index];
+
+  // 銃声 & 結果表示
+  playGunshot();
+  $("result-text").textContent = "☠️×" + result;
+  $("result-overlay").classList.add("show");
+  $("replay-btn").style.display = "none";
+  setTimeout(() => { $("replay-btn").style.display = "block"; }, 1500);
+}
+
+$("replay-btn").addEventListener("click", () => {
+  $("result-overlay").classList.remove("show");
+  // メイン画面を初期状態に戻す
+  $("odai-text").style.display = "none";
+  $("odai-placeholder").style.display = "block";
+  stopTimer(true);
+  showScreen("game-screen");
+});
+
+/* ==================== 効果音 ==================== */
+
+const gunshot = $("gunshot");
+let audioUnlocked = false;
+
+// モバイルの自動再生制限対策：最初のタップで無音再生して解錠
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  const v = gunshot.volume;
+  gunshot.volume = 0;
+  gunshot.play().then(() => {
+    gunshot.pause();
+    gunshot.currentTime = 0;
+    gunshot.volume = v;
+  }).catch(() => {
+    gunshot.volume = v;
+    audioUnlocked = false;
+  });
+}
+
+function playGunshot() {
+  gunshot.currentTime = 0;
+  gunshot.play().catch(() => {});
+}
+
+renderTimer();
+</script>
+</body>
+</html>
