@@ -40,12 +40,13 @@
   #odai-area {
     flex: 0 0 auto;
     width: 100%;
+    height: 36vh;          /* お題の文字数に関わらず固定→ボタン位置を不動にする */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 6vh 12px 0;   /* 上に余白を足してお題を下げる */
+    padding: 6vh 12px 0;
   }
 
   #odai-placeholder {
@@ -111,7 +112,7 @@
   #timer-area {
     flex: 0 0 auto;
     position: relative;        /* 看板をこの右上に固定する基準 */
-    margin-top: 56px;          /* ボタンとの間隔 */
+    margin-top: 86px;          /* ボタンとの間隔（タイマーを少し下げる） */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -177,36 +178,39 @@
 
   /* ============ ルーレットへの禍々しい看板 ============ */
 
-  /* タイマーの右上に固定。タイマーと一緒に動き、被らない */
+  /* タイマーの右上に固定する、丸い禍々しいボタン。タイマーと一緒に動く */
   #roulette-banner {
     position: absolute;
-    right: -2px;
-    top: -52px;
-    padding: 10px 16px;
-    background: linear-gradient(160deg, #ff6e3d, #ff3d8b);
-    border: 2px solid #ffd24d;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 0.98rem;
+    right: -12px;
+    top: -80px;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 32%, #9b1530, #4a0010 58%, #18000a);
+    border: 2px solid #c41236;
+    color: #ff7383;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    font-size: 0.6rem;
     font-weight: 900;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     cursor: pointer;
-    text-align: center;
-    line-height: 1.2;
-    white-space: nowrap;
-    box-shadow: 0 0 12px rgba(255, 120, 80, 0.5);
-    animation: bannerPulse 1.8s infinite;
-    transform: rotate(3deg);
-    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    box-shadow: 0 0 14px rgba(200, 20, 45, 0.6), inset 0 -4px 10px rgba(0,0,0,0.5);
+    animation: bannerPulse 1.7s infinite;
+    text-shadow: 0 0 6px rgba(255, 50, 70, 0.8);
     user-select: none;
     touch-action: manipulation;
     z-index: 5;
   }
+  #roulette-banner .skull { font-size: 1.55rem; line-height: 1; filter: drop-shadow(0 0 3px rgba(255,40,60,0.6)); }
   @keyframes bannerPulse {
-    0%, 100% { transform: rotate(3deg) scale(1); box-shadow: 0 0 10px rgba(255, 120, 80, 0.45); }
-    50% { transform: rotate(3deg) scale(1.05); box-shadow: 0 0 20px rgba(255, 150, 80, 0.8); }
+    0%, 100% { transform: scale(1); box-shadow: 0 0 12px rgba(200, 20, 45, 0.5), inset 0 -4px 10px rgba(0,0,0,0.5); }
+    50% { transform: scale(1.07); box-shadow: 0 0 24px rgba(225, 30, 55, 0.9), inset 0 -4px 10px rgba(0,0,0,0.5); }
   }
-  #roulette-banner:active { transform: rotate(3deg) scale(0.95); }
+  #roulette-banner:active { transform: scale(0.92); }
 
   /* ============ ルーレット画面 ============ */
 
@@ -367,7 +371,7 @@
   <button id="main-btn">お題！</button>
 
   <div id="timer-area">
-    <div id="roulette-banner">☠️ ルーレット</div>
+    <div id="roulette-banner"><span class="skull">☠️</span>ルーレット</div>
     <div id="timer-display">30</div>
     <div id="timer-finished">🔫 発表せよ！！</div>
     <div class="timer-controls">
