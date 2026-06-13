@@ -511,7 +511,6 @@ const randPick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 /* ==================== お題生成 ==================== */
 
 $("main-btn").addEventListener("click", () => {
-  unlockAudio();
   playButtonSfx();
   $("odai-kana").textContent = randPick(KANA_POOL);
   $("odai-word").textContent = randPick(ODAI_WORDS);
@@ -549,7 +548,6 @@ function stopTimer(resetRemain) {
 }
 
 $("timer-btn").addEventListener("click", () => {
-  unlockAudio();
   if (timerInterval) {            // 動作中 → リセット
     stopTimer(true);
     return;
@@ -598,7 +596,6 @@ function showScreen(id) {
 }
 
 $("roulette-banner").addEventListener("click", () => {
-  unlockAudio();
   setupRoulette();
   showScreen("roulette-screen");
   startRouletteBgm();          // ルーレット画面のBGM開始
@@ -695,7 +692,6 @@ function drawWheel() {
 
 $("spin-btn").addEventListener("click", () => {
   if (spinning) return;
-  unlockAudio();
   spinning = true;
   $("spin-btn").disabled = true;
   $("back-btn").style.opacity = "0.3";
@@ -759,29 +755,12 @@ const gunshot = $("gunshot");
 const countdownSfx = $("countdown");
 const rouletteBgm = $("roulette-bgm");
 const buttonSfx = $("button-sfx");
-let audioUnlocked = false;
 
-// モバイルの自動再生制限対策：タップ時に「muted」で無音解錠する。
-// volume=0 だと端末によっては一瞬音が漏れるため muted を使用。
-// 解錠が成功するまで audioUnlocked を立てず、毎タップで再試行する。
-function unlockAudio() {
-  if (audioUnlocked) return;
-  const els = [gunshot, countdownSfx];
-  let done = 0;
-  els.forEach((el) => {
-    el.muted = true;
-    const p = el.play();
-    if (p !== undefined) {
-      p.then(() => {
-        el.pause();
-        el.currentTime = 0;
-        el.muted = false;
-        done++;
-        if (done === els.length) audioUnlocked = true;
-      }).catch(() => { el.muted = false; });
-    }
-  });
-}
+// 音声の事前解錠（unlockAudio）は廃止。
+// 端末によってはミュート再生が一瞬音漏れし、最初のボタン押下時に
+// 銃声・カウントダウンが混ざって鳴る原因になっていた。
+// 最初のボタン押下でボタン音が鳴る＝その時点でページの音声は解禁されるため、
+// 以降の銃声・カウントダウン・BGMはそのまま再生すれば問題なく鳴る。
 
 function playButtonSfx() {
   buttonSfx.currentTime = 0;
