@@ -884,6 +884,8 @@
 <audio id="countdown" src="countdown.m4a" preload="auto"></audio>
 <audio id="roulette-bgm" src="roulette-bgm.mp3" preload="auto" loop></audio>
 <audio id="button-sfx" src="button.m4a" preload="auto"></audio>
+<audio id="booing" src="booing.mp3" preload="auto"></audio>
+<audio id="main-bgm" src="main-bgm.mp3" preload="auto" loop></audio>
 
 <script>
 "use strict";
@@ -992,7 +994,6 @@ const randPick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 let currentOdai = null;   // {kana, word} AIジャッジに引き継ぐ
 
 $("main-btn").addEventListener("click", () => {
-  playButtonSfx();
   currentOdai = { kana: randPick(KANA_POOL), word: randPick(ODAI_WORDS) };
   $("odai-kana").textContent = currentOdai.kana;
   $("odai-word").textContent = currentOdai.word;
@@ -1075,6 +1076,9 @@ $("timer-plus").addEventListener("click", () => {
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   $(id).classList.add("active");
+  // メインBGMはルーレット画面以外で流す
+  if (id === "roulette-screen") stopMainBgm();
+  else startMainBgm();
 }
 
 $("to-title-btn").addEventListener("click", () => {
@@ -1086,7 +1090,6 @@ $("to-title-btn").addEventListener("click", () => {
 });
 
 $("start-btn").addEventListener("click", () => {
-  playButtonSfx();
   showScreen("game-screen");
 });
 
@@ -1409,6 +1412,7 @@ $("ai-judge-btn").addEventListener("click", async () => {
     $("ai-result").querySelector(".reason").textContent = verdict.reason || "";
     $("ai-result").style.display = "block";
     $("ai-to-roulette-btn").style.display = "block";
+    playBooing();   // 敗者決定にブーイング
   } catch (e) {
     showAiError("通信エラー。電波のいい場所でもう一度試してみて。");
   } finally {
@@ -1440,6 +1444,57 @@ function playButtonSfx() {
   buttonSfx.currentTime = 0;
   buttonSfx.play().catch(() => {});
 }
+
+const booingSfx = $("booing");
+function playBooing() {
+  booingSfx.currentTime = 0;
+  booingSfx.play().catch(() => {});
+}
+
+/* --- メインBGM（ルーレット画面以外で小音量ループ） ---
+   iPhoneのSafariは <audio>.volume を無視するため、
+   Web Audio APIのゲインで音量を確実に絞る（効果音を邪魔しない音量）。 */
+const mainBgm = $("main-bgm");
+const MAIN_BGM_VOLUME = 0.12;
+let bgmCtx = null;
+
+function initBgmGain() {
+  if (bgmCtx) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    bgmCtx = new AC();
+    const src = bgmCtx.createMediaElementSource(mainBgm);
+    const gain = bgmCtx.createGain();
+    gain.gain.value = MAIN_BGM_VOLUME;
+    src.connect(gain);
+    gain.connect(bgmCtx.destination);
+  } catch (e) {
+    bgmCtx = null;
+    mainBgm.volume = MAIN_BGM_VOLUME;   // フォールバック
+  }
+}
+
+function startMainBgm() {
+  initBgmGain();
+  if (bgmCtx && bgmCtx.state === "suspended") bgmCtx.resume().catch(() => {});
+  mainBgm.play().catch(() => {});   // 初回タップ前の自動再生失敗は無視（次のタップで開始）
+}
+
+function stopMainBgm() {
+  mainBgm.pause();
+}
+
+/* --- 全ボタン共通の「ぷに」音＆BGM起動 ---
+   個別ハンドラに書かず、ここで一括して拾う。 */
+document.addEventListener("click", (e) => {
+  if (e.target.closest("button, #roulette-banner, #ai-banner")) {
+    playButtonSfx();
+  }
+  // ルーレット画面以外ならBGMを流す（初回タップでの起動もここで担保）
+  if (!$("roulette-screen").classList.contains("active")) {
+    startMainBgm();
+  }
+}, true);
 
 function playGunshot() {
   gunshot.currentTime = 0;
