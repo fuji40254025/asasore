@@ -347,11 +347,243 @@
   }
   #roulette-banner:active { transform: scale(0.92); }
 
+  /* タイマー左上のAIジャッジボタン（2人対戦用） */
+  #ai-banner {
+    position: absolute;
+    left: -12px;
+    top: -80px;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 32%, #37c8e8, #16619f 58%, #0a1f3d);
+    border: 2px solid #2ec5d3;
+    color: #aef1ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(50, 190, 230, 0.55), inset 0 -4px 10px rgba(0,0,0,0.5);
+    text-shadow: 0 0 6px rgba(120, 230, 255, 0.8);
+    user-select: none;
+    touch-action: manipulation;
+    z-index: 5;
+  }
+  #ai-banner .robot { font-size: 1.55rem; line-height: 1; }
+  #ai-banner:active { transform: scale(0.92); }
+
+  /* ============ AIジャッジ画面・AI設定画面 ============ */
+
+  #ai-screen, #ai-settings-screen {
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding-bottom: 32px;
+  }
+
+  .ai-title {
+    margin-top: 56px;
+    font-size: clamp(1.4rem, 6.5vw, 2rem);
+    font-weight: 900;
+    color: #7fe3ff;
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 14px rgba(80, 200, 255, 0.5);
+  }
+
+  #ai-odai-display {
+    width: min(92vw, 480px);
+    margin-top: 14px;
+    padding: 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 900;
+    line-height: 1.6;
+    color: #ffe066;
+  }
+
+  .ai-input-row {
+    width: min(92vw, 480px);
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ai-input-label {
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  }
+  .ai-input-label.a { background: linear-gradient(160deg, #ff8a3d, #ff5fa2); }
+  .ai-input-label.b { background: linear-gradient(160deg, #34d1c5, #1f8fb0); }
+  .ai-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,20,0.35);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: bold;
+    outline: none;
+  }
+  .ai-input:focus { border-color: #2ec5d3; }
+
+  #ai-judge-btn {
+    margin-top: 18px;
+    width: min(72vw, 320px);
+    padding: 16px 0;
+    border-radius: 14px;
+    border: 3px solid #2ec5d3;
+    background: linear-gradient(180deg, #34d1c5, #14588a);
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    box-shadow: 0 0 22px rgba(60, 200, 230, 0.5);
+    touch-action: manipulation;
+  }
+  #ai-judge-btn:active { transform: scale(0.95); }
+  #ai-judge-btn:disabled { opacity: 0.45; pointer-events: none; }
+
+  #ai-result {
+    display: none;
+    width: min(92vw, 480px);
+    margin-top: 18px;
+    padding: 18px 16px;
+    background: rgba(255, 40, 70, 0.12);
+    border: 2px solid rgba(255, 60, 90, 0.5);
+    border-radius: 16px;
+    text-align: center;
+    animation: odaiPop 0.35s ease-out;
+  }
+  #ai-result .verdict {
+    font-size: clamp(1.6rem, 8vw, 2.4rem);
+    font-weight: 900;
+    color: #ff5f73;
+    text-shadow: 0 0 14px rgba(255, 60, 90, 0.6);
+  }
+  #ai-result .reason {
+    margin-top: 10px;
+    font-size: 0.98rem;
+    font-weight: bold;
+    line-height: 1.7;
+    color: #ffe3e8;
+  }
+
+  #ai-error {
+    display: none;
+    width: min(92vw, 480px);
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(255, 170, 40, 0.12);
+    border: 1px solid rgba(255, 190, 80, 0.5);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    line-height: 1.6;
+    color: #ffd9a0;
+    text-align: center;
+  }
+
+  #ai-to-roulette-btn {
+    display: none;
+    margin-top: 16px;
+    width: min(72vw, 320px);
+    padding: 14px 0;
+    border-radius: 14px;
+    border: 3px solid #c41236;
+    background: radial-gradient(circle at 35% 30%, #9b1530, #4a0010 75%);
+    color: #ff9aa8;
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    box-shadow: 0 0 18px rgba(200, 20, 45, 0.5);
+    touch-action: manipulation;
+  }
+  #ai-to-roulette-btn:active { transform: scale(0.95); }
+
+  /* AI設定画面 */
+  .ai-settings-note {
+    width: min(92vw, 480px);
+    margin-top: 14px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #b9c6ff;
+    font-weight: bold;
+  }
+  #ai-key-input {
+    width: min(92vw, 480px);
+    margin-top: 14px;
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,20,0.35);
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+  }
+  #ai-key-input:focus { border-color: #2ec5d3; }
+  #ai-key-status {
+    margin-top: 12px;
+    font-size: 0.95rem;
+    font-weight: 900;
+  }
+  .ai-settings-btns {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+  }
+  .ai-set-btn {
+    padding: 13px 26px;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 900;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  #ai-key-save {
+    border: 2px solid #2ec5d3;
+    background: linear-gradient(180deg, #34d1c5, #1f8fb0);
+    color: #fff;
+  }
+  #ai-key-delete {
+    border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    color: #ffb3bd;
+  }
+  .ai-set-btn:active { transform: scale(0.95); }
+
+  /* タイトル画面のAI設定リンク */
+  #ai-settings-link {
+    margin-top: -1vh;
+    background: none;
+    border: none;
+    color: #8fa2e8;
+    font-size: 0.92rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    text-decoration: underline;
+    touch-action: manipulation;
+  }
+
   /* ============ ルーレット画面 ============ */
 
   #roulette-screen { justify-content: flex-start; gap: 8px; }
 
-  #back-btn {
+  #back-btn, .screen-back-btn {
     position: absolute;
     top: 14px; left: 12px;
     padding: 8px 14px;
@@ -519,6 +751,50 @@
   </div>
   <button id="start-btn" class="title-btn">始める</button>
   <button id="rules-btn" class="title-btn">ルール説明</button>
+  <button id="ai-settings-link">⚙️ AIジャッジ設定</button>
+</div>
+
+<!-- ============ AI設定画面 ============ -->
+<div id="ai-settings-screen" class="screen">
+  <button class="screen-back-btn" id="ai-settings-back-btn">← タイトル</button>
+  <div class="ai-title">⚙️ AIジャッジ設定</div>
+  <div class="ai-settings-note">
+    AIジャッジ（2人対戦用）を使うには、Gemini APIキーが必要です。<br>
+    <br>
+    1. <b>aistudio.google.com/apikey</b> をブラウザで開く（Googleログイン）<br>
+    2. 「APIキーを作成」を押してコピー<br>
+    3. 下に貼り付けて保存<br>
+    <br>
+    ※キーは<b>この端末の中にだけ</b>保存されます。外部に送信されるのはAIへの質問時のみです。
+  </div>
+  <input id="ai-key-input" type="text" placeholder="ここにAPIキーを貼り付け" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <div id="ai-key-status"></div>
+  <div class="ai-settings-btns">
+    <button id="ai-key-save" class="ai-set-btn">保存</button>
+    <button id="ai-key-delete" class="ai-set-btn">削除</button>
+  </div>
+</div>
+
+<!-- ============ AIジャッジ画面 ============ -->
+<div id="ai-screen" class="screen">
+  <button class="screen-back-btn" id="ai-back-btn">← 戻る</button>
+  <div class="ai-title">🤖 AIジャッジ</div>
+  <div id="ai-odai-display"></div>
+  <div class="ai-input-row">
+    <div class="ai-input-label a">A</div>
+    <input class="ai-input" id="ai-answer-a" type="text" placeholder="プレイヤーAの回答" autocomplete="off">
+  </div>
+  <div class="ai-input-row">
+    <div class="ai-input-label b">B</div>
+    <input class="ai-input" id="ai-answer-b" type="text" placeholder="プレイヤーBの回答" autocomplete="off">
+  </div>
+  <button id="ai-judge-btn">ジャッジ！</button>
+  <div id="ai-error"></div>
+  <div id="ai-result">
+    <div class="verdict"></div>
+    <div class="reason"></div>
+  </div>
+  <button id="ai-to-roulette-btn">☠️ 敗者をルーレットへ</button>
 </div>
 
 <!-- ============ ルール説明画面 ============ -->
@@ -573,6 +849,7 @@
 
   <div id="timer-area">
     <div id="roulette-banner"><span class="skull">☠️</span>ルーレット</div>
+    <div id="ai-banner"><span class="robot">🤖</span>AIジャッジ</div>
     <div id="timer-display">30</div>
     <div id="timer-finished">🔫 発表せよ！！</div>
     <div class="timer-controls">
@@ -712,10 +989,13 @@ const randPick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 /* ==================== お題生成 ==================== */
 
+let currentOdai = null;   // {kana, word} AIジャッジに引き継ぐ
+
 $("main-btn").addEventListener("click", () => {
   playButtonSfx();
-  $("odai-kana").textContent = randPick(KANA_POOL);
-  $("odai-word").textContent = randPick(ODAI_WORDS);
+  currentOdai = { kana: randPick(KANA_POOL), word: randPick(ODAI_WORDS) };
+  $("odai-kana").textContent = currentOdai.kana;
+  $("odai-word").textContent = currentOdai.word;
   $("odai-placeholder").style.display = "none";
   const odaiText = $("odai-text");
   odaiText.style.display = "none";
@@ -965,6 +1245,182 @@ $("replay-btn").addEventListener("click", () => {
   $("odai-placeholder").style.display = "block";
   stopTimer(true);
   showScreen("game-screen");
+});
+
+/* ==================== AIジャッジ（2人対戦用） ==================== */
+
+const AI_KEY_STORAGE = "asasore_gemini_key";
+const AI_MODEL = "gemini-2.5-flash";
+
+function getAiKey() {
+  return localStorage.getItem(AI_KEY_STORAGE) || "";
+}
+
+function renderAiKeyStatus() {
+  const st = $("ai-key-status");
+  if (getAiKey()) {
+    st.textContent = "✅ 設定済み（この端末に保存されています）";
+    st.style.color = "#7fe3a0";
+  } else {
+    st.textContent = "⚠️ 未設定";
+    st.style.color = "#ffd9a0";
+  }
+}
+
+// --- 設定画面 ---
+$("ai-settings-link").addEventListener("click", () => {
+  renderAiKeyStatus();
+  $("ai-key-input").value = "";
+  showScreen("ai-settings-screen");
+});
+
+$("ai-settings-back-btn").addEventListener("click", () => {
+  showScreen("title-screen");
+});
+
+$("ai-key-save").addEventListener("click", () => {
+  const v = $("ai-key-input").value.trim();
+  if (!v) {
+    $("ai-key-status").textContent = "⚠️ キーを貼り付けてから保存を押してね";
+    $("ai-key-status").style.color = "#ffd9a0";
+    return;
+  }
+  localStorage.setItem(AI_KEY_STORAGE, v);
+  $("ai-key-input").value = "";
+  renderAiKeyStatus();
+});
+
+$("ai-key-delete").addEventListener("click", () => {
+  localStorage.removeItem(AI_KEY_STORAGE);
+  renderAiKeyStatus();
+});
+
+// --- ジャッジ画面 ---
+$("ai-banner").addEventListener("click", () => {
+  // 表示を初期化
+  $("ai-result").style.display = "none";
+  $("ai-error").style.display = "none";
+  $("ai-to-roulette-btn").style.display = "none";
+  $("ai-judge-btn").disabled = false;
+  $("ai-judge-btn").textContent = "ジャッジ！";
+  $("ai-answer-a").value = "";
+  $("ai-answer-b").value = "";
+  if (currentOdai) {
+    $("ai-odai-display").innerHTML =
+      `お題：「<span style="color:#ff5fa2">${currentOdai.kana}</span>」から始まる、${currentOdai.word}と言えば？`;
+  } else {
+    $("ai-odai-display").textContent = "⚠️ まだお題が出ていないよ。先にメイン画面でお題を出してね。";
+  }
+  showScreen("ai-screen");
+});
+
+$("ai-back-btn").addEventListener("click", () => {
+  showScreen("game-screen");
+});
+
+function showAiError(msg) {
+  const el = $("ai-error");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+$("ai-judge-btn").addEventListener("click", async () => {
+  $("ai-error").style.display = "none";
+  $("ai-result").style.display = "none";
+  $("ai-to-roulette-btn").style.display = "none";
+
+  if (!currentOdai) {
+    showAiError("先にメイン画面でお題を出してからジャッジしてね。");
+    return;
+  }
+  const key = getAiKey();
+  if (!key) {
+    showAiError("APIキーが未設定です。タイトル画面の「⚙️ AIジャッジ設定」から設定してね。");
+    return;
+  }
+  const ansA = $("ai-answer-a").value.trim();
+  const ansB = $("ai-answer-b").value.trim();
+  if (!ansA || !ansB) {
+    showAiError("AとB、両方の回答を入力してね。");
+    return;
+  }
+
+  const btn = $("ai-judge-btn");
+  btn.disabled = true;
+  btn.textContent = "考え中…";
+
+  const odaiStr = `「${currentOdai.kana}」から始まる、${currentOdai.word}と言えば？`;
+  const prompt =
+`あなたは飲み会パーティーゲームの公平な審判です。世間一般の常識・感覚に基づいて、必ず白黒つけて判定してください。
+
+お題：${odaiStr}
+回答A：「${ansA}」
+回答B：「${ansB}」
+
+判定基準：
+- お題により「相応しくない」回答をした方が敗者
+- 指定のひらがなで始まっていない回答は、それだけで大幅に不利
+- お題の言葉との関連が薄い・無理がある方が不利
+- 引き分けは禁止。僅差でも必ずどちらかを敗者にする
+
+次のJSONだけを出力してください（他の文章は一切不要）：
+{"loser":"A"または"B","reason":"敗者と判定した理由（日本語で1〜2文、パーティーの司会っぽく少しノリよく）"}`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": key,
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      if (res.status === 400 || res.status === 401 || res.status === 403) {
+        showAiError("APIキーが正しくないみたい。設定画面でキーを確認・再保存してみて。");
+      } else if (res.status === 429) {
+        showAiError("今日の無料枠か、1分あたりの回数制限に当たったかも。少し待ってからもう一度どうぞ。");
+      } else {
+        showAiError(`AIとの通信に失敗（エラー${res.status}）。少し待ってからもう一度どうぞ。`);
+      }
+      return;
+    }
+
+    const data = await res.json();
+    const text = (data.candidates?.[0]?.content?.parts || [])
+      .map((p) => p.text || "")
+      .join("");
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      showAiError("AIの返答がうまく読めなかった。もう一度ジャッジしてみて。");
+      return;
+    }
+    const verdict = JSON.parse(jsonMatch[0]);
+    const loser = verdict.loser === "B" ? "B" : "A";
+    const loserAns = loser === "A" ? ansA : ansB;
+
+    $("ai-result").querySelector(".verdict").textContent = `敗者は ${loser}！「${loserAns}」`;
+    $("ai-result").querySelector(".reason").textContent = verdict.reason || "";
+    $("ai-result").style.display = "block";
+    $("ai-to-roulette-btn").style.display = "block";
+  } catch (e) {
+    showAiError("通信エラー。電波のいい場所でもう一度試してみて。");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "ジャッジ！";
+  }
+});
+
+$("ai-to-roulette-btn").addEventListener("click", () => {
+  setupRoulette();
+  showScreen("roulette-screen");
+  startRouletteBgm();
 });
 
 /* ==================== 効果音 ==================== */
