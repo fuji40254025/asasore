@@ -107,6 +107,141 @@
   }
   #main-btn:active { transform: scale(0.94); }
 
+  /* ============ タイトル画面 ============ */
+
+  #title-screen {
+    justify-content: center;
+    gap: 5vh;
+  }
+
+  #title-logo {
+    text-align: center;
+    animation: odaiPop 0.5s ease-out;
+  }
+  #title-logo .title-main {
+    font-size: clamp(2.6rem, 13vw, 5rem);
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: 0.06em;
+    background: linear-gradient(180deg, #ffe066, #ff8a3d 55%, #ff5fa2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.55)) drop-shadow(0 0 22px rgba(255,160,80,0.35));
+  }
+  #title-logo .title-sub {
+    margin-top: 12px;
+    font-size: clamp(0.95rem, 4.5vw, 1.3rem);
+    font-weight: 900;
+    color: #b9c6ff;
+    letter-spacing: 0.35em;
+  }
+
+  .title-btn {
+    display: block;
+    width: min(72vw, 320px);
+    padding: 18px 0;
+    border-radius: 16px;
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    touch-action: manipulation;
+    transition: transform 0.08s;
+  }
+  .title-btn:active { transform: scale(0.95); }
+
+  #start-btn {
+    border: 3px solid #ffcf4d;
+    background: radial-gradient(circle at 35% 30%, #ff8a3d, #ff5fa2 70%, #c83fb0);
+    color: #fff;
+    box-shadow: 0 0 30px rgba(255, 130, 80, 0.55);
+    animation: bannerPulse 2s infinite;
+  }
+  #rules-btn {
+    border: 2px solid #2ec5d3;
+    background: linear-gradient(180deg, #34d1c5, #1f8fb0);
+    color: #fff;
+    box-shadow: 0 0 18px rgba(60, 200, 210, 0.4);
+  }
+
+  /* ============ ルール説明画面 ============ */
+
+  #rules-screen {
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding-bottom: 32px;
+  }
+
+  #rules-title {
+    margin-top: 20px;
+    font-size: clamp(1.5rem, 7vw, 2.2rem);
+    font-weight: 900;
+    color: #ffe066;
+    letter-spacing: 0.15em;
+    text-shadow: 0 0 14px rgba(255, 220, 100, 0.4), 0 2px 4px rgba(0,0,0,0.5);
+  }
+
+  #rules-list {
+    width: min(92vw, 480px);
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .rule-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .rule-num {
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(160deg, #ff8a3d, #ff5fa2);
+    color: #fff;
+    font-weight: 900;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  }
+  .rule-body { font-size: 0.98rem; line-height: 1.65; font-weight: bold; color: #f2f4ff; }
+  .rule-body .accent { color: #ffe066; }
+  .rule-body .danger { color: #ff8a9b; }
+  .rule-note {
+    width: min(92vw, 480px);
+    margin-top: 14px;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: #b9c6ff;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  #rules-back-btn {
+    margin-top: 22px;
+    width: min(72vw, 320px);
+    padding: 15px 0;
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  #rules-back-btn:active { transform: scale(0.95); }
+
   /* ============ タイマー ============ */
 
   #timer-area {
@@ -356,8 +491,54 @@
 </head>
 <body>
 
+<!-- ============ タイトル画面 ============ -->
+<div id="title-screen" class="screen active">
+  <div id="title-logo">
+    <div class="title-main">朝まで<br>それ正解</div>
+    <div class="title-sub">🍻 飲み会パーティーゲーム 🍻</div>
+  </div>
+  <button id="start-btn" class="title-btn">始める</button>
+  <button id="rules-btn" class="title-btn">ルール説明</button>
+</div>
+
+<!-- ============ ルール説明画面 ============ -->
+<div id="rules-screen" class="screen">
+  <div id="rules-title">― ルール ―</div>
+  <div id="rules-list">
+    <div class="rule-card">
+      <div class="rule-num">1</div>
+      <div class="rule-body">中央のボタンを押すと、お題が出る。<br><span class="accent">「◯から始まる、△△と言えば？」</span></div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">2</div>
+      <div class="rule-body">タイマーをスタート！時間内に、お題に合う答えをこっそり考えよう。</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">3</div>
+      <div class="rule-body">時間切れになったら、全員で一斉に発表！</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">4</div>
+      <div class="rule-body">「せーの」で、<span class="danger">一番お題に相応しくない答え</span>を出した人を全員で同時に指差す！</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">5</div>
+      <div class="rule-body">一番指を差された人が<span class="danger">敗者</span>。票が割れて決まらなかったら引き分け（ルーレットなし）。</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">6</div>
+      <div class="rule-body">敗者は<span class="danger">☠️ルーレット</span>へ。止まった数字<span class="accent">（×0〜×3）</span>の杯数を飲む！</div>
+    </div>
+  </div>
+  <div class="rule-note">
+    「大きいもの」に「地球」もアリなら「家族の愛」もアリ。<br>
+    価値観のズレこそがこのゲームの醍醐味。心を込めて指を差せ！
+  </div>
+  <button id="rules-back-btn">← タイトルへ</button>
+</div>
+
 <!-- ============ メイン画面 ============ -->
-<div id="game-screen" class="screen active">
+<div id="game-screen" class="screen">
   <div class="title-mini">朝までそれ正解</div>
 
   <div id="odai-area">
@@ -594,6 +775,19 @@ function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   $(id).classList.add("active");
 }
+
+$("start-btn").addEventListener("click", () => {
+  playButtonSfx();
+  showScreen("game-screen");
+});
+
+$("rules-btn").addEventListener("click", () => {
+  showScreen("rules-screen");
+});
+
+$("rules-back-btn").addEventListener("click", () => {
+  showScreen("title-screen");
+});
 
 $("roulette-banner").addEventListener("click", () => {
   setupRoulette();
