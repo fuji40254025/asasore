@@ -491,15 +491,22 @@
   }
   #replay-btn:active { transform: scale(0.95); }
 
-  .title-mini {
+  /* ゲーム画面左上の「タイトルへ戻る」ボタン */
+  #to-title-btn {
     position: absolute;
-    top: 16px; left: 14px;
-    font-size: 0.8rem;
-    color: #9fb0ff;
+    top: 14px; left: 12px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    color: #dfe6ff;
+    font-size: 0.9rem;
     font-weight: bold;
-    letter-spacing: 0.15em;
-    z-index: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+    z-index: 5;
   }
+  #to-title-btn:active { transform: scale(0.95); }
 </style>
 </head>
 <body>
@@ -552,7 +559,7 @@
 
 <!-- ============ メイン画面 ============ -->
 <div id="game-screen" class="screen">
-  <div class="title-mini">朝までそれ正解</div>
+  <button id="to-title-btn">← タイトル</button>
 
   <div id="odai-area">
     <div id="odai-placeholder">↓ ボタンを押してお題を召喚 ↓</div>
@@ -789,6 +796,14 @@ function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   $(id).classList.add("active");
 }
+
+$("to-title-btn").addEventListener("click", () => {
+  // ゲーム状態をリセットしてタイトルへ
+  $("odai-text").style.display = "none";
+  $("odai-placeholder").style.display = "block";
+  stopTimer(true);
+  showScreen("title-screen");
+});
 
 $("start-btn").addEventListener("click", () => {
   playButtonSfx();
