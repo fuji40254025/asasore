@@ -565,8 +565,8 @@
   }
   .ai-set-btn:active { transform: scale(0.95); }
 
-  /* タイトル画面のAI設定リンク */
-  #ai-settings-link {
+  /* タイトル画面の設定リンク */
+  #settings-link {
     margin-top: -1vh;
     background: none;
     border: none;
@@ -578,6 +578,79 @@
     text-decoration: underline;
     touch-action: manipulation;
   }
+
+  /* ============ 設定画面 ============ */
+
+  #settings-screen {
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding-bottom: 32px;
+  }
+
+  .settings-row {
+    width: min(92vw, 480px);
+    margin-top: 14px;
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .settings-label { font-size: 1.05rem; font-weight: 900; color: #f2f4ff; }
+  .settings-sub { margin-top: 3px; font-size: 0.78rem; font-weight: bold; color: #b9c6ff; line-height: 1.5; }
+
+  .toggle {
+    position: relative;
+    flex: 0 0 auto;
+    width: 64px;
+    height: 34px;
+    border-radius: 17px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 20, 0.45);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    touch-action: manipulation;
+  }
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #8f9ac4;
+    transition: left 0.2s, background 0.2s;
+  }
+  .toggle.on {
+    background: linear-gradient(180deg, #34d1c5, #1f8fb0);
+    border-color: #2ec5d3;
+  }
+  .toggle.on::after { left: 33px; background: #fff; }
+
+  #settings-ai-btn, #settings-back-btn {
+    margin-top: 22px;
+    width: min(72vw, 320px);
+    padding: 15px 0;
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  #settings-ai-btn {
+    border-color: #2ec5d3;
+    background: linear-gradient(180deg, #34d1c5, #1f8fb0);
+    box-shadow: 0 0 18px rgba(60, 200, 210, 0.4);
+  }
+  #settings-ai-btn:active, #settings-back-btn:active { transform: scale(0.95); }
 
   /* ============ ルーレット画面 ============ */
 
@@ -751,12 +824,33 @@
   </div>
   <button id="start-btn" class="title-btn">始める</button>
   <button id="rules-btn" class="title-btn">ルール説明</button>
-  <button id="ai-settings-link">⚙️ AIジャッジ設定</button>
+  <button id="settings-link">⚙️ 設定</button>
+</div>
+
+<!-- ============ 設定画面 ============ -->
+<div id="settings-screen" class="screen">
+  <div class="ai-title">⚙️ 設定</div>
+  <div class="settings-row">
+    <div>
+      <div class="settings-label">🎵 BGM</div>
+      <div class="settings-sub">メイン画面・ルーレットの音楽</div>
+    </div>
+    <button class="toggle" id="bgm-toggle" aria-label="BGMのオンオフ"></button>
+  </div>
+  <div class="settings-row">
+    <div>
+      <div class="settings-label">🔊 効果音（SE）</div>
+      <div class="settings-sub">ボタン音・銃声・カウントダウンなど</div>
+    </div>
+    <button class="toggle" id="se-toggle" aria-label="効果音のオンオフ"></button>
+  </div>
+  <button id="settings-ai-btn">🤖 AIジャッジ設定</button>
+  <button id="settings-back-btn">← タイトルへ</button>
 </div>
 
 <!-- ============ AI設定画面 ============ -->
 <div id="ai-settings-screen" class="screen">
-  <button class="screen-back-btn" id="ai-settings-back-btn">← タイトル</button>
+  <button class="screen-back-btn" id="ai-settings-back-btn">← 設定</button>
   <div class="ai-title">⚙️ AIジャッジ設定</div>
   <div class="ai-settings-note">
     AIジャッジ（2人対戦用）を使うには、Gemini APIキーが必要です。<br>
@@ -1271,14 +1365,23 @@ function renderAiKeyStatus() {
 }
 
 // --- 設定画面 ---
-$("ai-settings-link").addEventListener("click", () => {
+$("settings-link").addEventListener("click", () => {
+  renderSoundToggles();
+  showScreen("settings-screen");
+});
+
+$("settings-back-btn").addEventListener("click", () => {
+  showScreen("title-screen");
+});
+
+$("settings-ai-btn").addEventListener("click", () => {
   renderAiKeyStatus();
   $("ai-key-input").value = "";
   showScreen("ai-settings-screen");
 });
 
 $("ai-settings-back-btn").addEventListener("click", () => {
-  showScreen("title-screen");
+  showScreen("settings-screen");
 });
 
 $("ai-key-save").addEventListener("click", () => {
@@ -1427,6 +1530,44 @@ $("ai-to-roulette-btn").addEventListener("click", () => {
   startRouletteBgm();
 });
 
+/* ==================== サウンド設定（BGM・SEのオンオフ） ==================== */
+
+const SOUND_STORAGE = "asasore_sound_settings";
+const soundSettings = { bgm: true, se: true };
+try {
+  const saved = JSON.parse(localStorage.getItem(SOUND_STORAGE) || "{}");
+  if (typeof saved.bgm === "boolean") soundSettings.bgm = saved.bgm;
+  if (typeof saved.se === "boolean") soundSettings.se = saved.se;
+} catch (e) { /* 壊れた保存データは無視してデフォルトで動く */ }
+
+function saveSoundSettings() {
+  localStorage.setItem(SOUND_STORAGE, JSON.stringify(soundSettings));
+}
+
+function renderSoundToggles() {
+  $("bgm-toggle").classList.toggle("on", soundSettings.bgm);
+  $("se-toggle").classList.toggle("on", soundSettings.se);
+}
+
+$("bgm-toggle").addEventListener("click", () => {
+  soundSettings.bgm = !soundSettings.bgm;
+  saveSoundSettings();
+  renderSoundToggles();
+  if (soundSettings.bgm) {
+    if ($("roulette-screen").classList.contains("active")) startRouletteBgm();
+    else startMainBgm();
+  } else {
+    stopMainBgm();
+    stopRouletteBgm();
+  }
+});
+
+$("se-toggle").addEventListener("click", () => {
+  soundSettings.se = !soundSettings.se;
+  saveSoundSettings();
+  renderSoundToggles();
+});
+
 /* ==================== 効果音 ==================== */
 
 const gunshot = $("gunshot");
@@ -1441,12 +1582,14 @@ const buttonSfx = $("button-sfx");
 // 以降の銃声・カウントダウン・BGMはそのまま再生すれば問題なく鳴る。
 
 function playButtonSfx() {
+  if (!soundSettings.se) return;
   buttonSfx.currentTime = 0;
   buttonSfx.play().catch(() => {});
 }
 
 const booingSfx = $("booing");
 function playBooing() {
+  if (!soundSettings.se) return;
   booingSfx.currentTime = 0;
   booingSfx.play().catch(() => {});
 }
@@ -1475,6 +1618,7 @@ function initBgmGain() {
 }
 
 function startMainBgm() {
+  if (!soundSettings.bgm) return;
   initBgmGain();
   if (bgmCtx && bgmCtx.state === "suspended") bgmCtx.resume().catch(() => {});
   mainBgm.play().catch(() => {});   // 初回タップ前の自動再生失敗は無視（次のタップで開始）
@@ -1497,16 +1641,19 @@ document.addEventListener("click", (e) => {
 }, true);
 
 function playGunshot() {
+  if (!soundSettings.se) return;
   gunshot.currentTime = 0;
   gunshot.play().catch(() => {});
 }
 
 function playCountdown() {
+  if (!soundSettings.se) return;
   countdownSfx.currentTime = 0;
   countdownSfx.play().catch(() => {});
 }
 
 function startRouletteBgm() {
+  if (!soundSettings.bgm) return;
   rouletteBgm.currentTime = 0;
   rouletteBgm.play().catch(() => {});
 }
